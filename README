@@ -7,10 +7,10 @@ Scribe is a server for aggregating log data that's streamed in real
 time from clients. It is designed to be scalable and reliable. For more information regarding Scribe, please see https://github.com/facebook/scribe.
 
 Apache log4net is a sub project of the Apache Logging Services project. 
-Apache log4net graduated from the Apache Incubator in February 2007.
+It is a logging library similar for .NET.
 Web site: http://logging.apache.org/log4net
 
-Scribe Appender 
+Scribe Appender is a custom appender for log4net. It sends logging events to a running Scribe server.
 
 Example
 =======
