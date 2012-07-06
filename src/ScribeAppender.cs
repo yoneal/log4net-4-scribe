@@ -40,8 +40,22 @@ namespace log4net.Appender
     /// Sends logging events to a Scribe server.
     /// </summary>
     /// <remarks>
-    /// <para></para>
+    /// <para>
+    /// For more information regarding Scribe, please refer to the Scribe project page: https://github.com/facebook/scribe/.
+    /// </para>
     /// </remarks>
+    /// <example>
+    /// <code lang="XML" escaped="true">
+    /// <appender name="ScribeAppender" type="log4net.Appender.ScribeAppender, ScribeAppender">
+    ///     <remoteHost value="ScribeServer" />
+    ///     <remotePort value="8080" />
+    ///     <scribeTimeout value="200" />
+    ///     <category value="Example" />
+    ///     <layout type="log4net.Layout.PatternLayout" value="%-5level %logger [%ndc] - %message%newline" />
+    /// </appender>
+    /// </code>
+    /// </example>
+    /// <author>Neal Sebastian</author>
     public class ScribeAppender : AppenderSkeleton
     {
         #region Public Instance Constructors
@@ -61,12 +75,26 @@ namespace log4net.Appender
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets or sets the hostname or IP address of the Scribe server to which the logging event should be sent.
+        /// </summary>
+        /// <value>
+        /// The hostname or IP address of the Scribe server.
+        /// </value>
         public string RemoteHost
         {
             get { return remoteHost; }
             set { remoteHost = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the TCP port number of the Scribe server to which the logging event should be sent.
+        /// </summary>
+        /// <value>
+        /// An integer value in the range <see cref="IPEndPoint.MinPort" /> to <see cref="IPEndPoint.MaxPort" /> 
+		/// indicating the TCP port number of the remote host or multicast group to which the logging event 
+		/// will be sent.
+        /// </value>
         public int RemotePort
         {
             get { return remotePort; }
@@ -87,6 +115,12 @@ namespace log4net.Appender
             }
         }
 
+        /// <summary>
+        /// Gets or sets the time interval to determine if the connecetion to the Scribe server is lost.
+        /// </summary>
+        /// <value>
+        /// An integer value in the range 1 to <see cref="Int32.MaxValue" /> 
+        /// </value>
         public int ScribeTimeout
         {
             get { return scribeTimeout; }
@@ -100,12 +134,21 @@ namespace log4net.Appender
             }
         }
 
+        /// <summary>
+        /// Gets or sets the category of the log message
+        /// </summary>
+        /// <value>
+        /// Any string.
+        /// </value>
         public string Category
         {
             get { return this.category; }
             set { this.category = value; }
         }
 
+        /// <summary>
+        /// RFU
+        /// </summary>
         public Encoding Encoding
         {
             get { return messageEncoding; }
@@ -116,24 +159,36 @@ namespace log4net.Appender
 
         #region Protected Instance Properties
 
+        /// <summary>
+        /// Gets or sets the underlying <see cref="TSocket" />
+        /// </summary>
         protected TSocket ThriftSocket
         {
             get { return this.thriftSocket; }
             set { this.thriftSocket = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the underlying <see cref="TFramedTransport" />
+        /// </summary>
         protected TFramedTransport ThriftFramedTransport
         {
             get { return this.thriftFramedTransport; }
             set { this.thriftFramedTransport = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the underlying <see cref="ThriftBinaryProtocol" />
+        /// </summary>
         protected TBinaryProtocol ThriftBinaryProtocol
         {
             get { return this.thriftBinaryProtocol; }
             set { this.thriftBinaryProtocol = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the underlying <see cref="scribe.Client" />
+        /// </summary>
         protected scribe.Client ScribeClient
         {
             get { return this.scribeClient; }
@@ -156,17 +211,38 @@ namespace log4net.Appender
         /// </summary>
         private int remotePort;
 
+        /// <summary>
+        /// Default timeout if <see cref="scribeTimeout" /> is not specified in the configuration file.
+        /// </summary>
         private const int defaultTimeout = 300;
+        /// <summary>
+        /// The timeout used by the internal Scribe client
+        /// </summary>
         private int scribeTimeout = defaultTimeout;
 
+        /// <summary>
+        /// The underlying <see cref="TSocket" /> used by the internal Scribe client
+        /// </summary>
         private TSocket thriftSocket;
 
+        /// <summary>
+        /// The underlying <see cref="TFramedTransport" /> used by the internal Scribe client
+        /// </summary>
         private TFramedTransport thriftFramedTransport;
 
+        /// <summary>
+        /// The underlying <see cref="TBinaryProtocol" /> used by the internal Scribe client
+        /// </summary>
         private TBinaryProtocol thriftBinaryProtocol;
 
+        /// <summary>
+        /// The internal <see cref="scribe.Client" />
+        /// </summary>
         private scribe.Client scribeClient;
 
+        /// <summary>
+        /// The category of the logging event.
+        /// </summary>
         private string category;
 
         /// <summary>
@@ -178,6 +254,28 @@ namespace log4net.Appender
 
         #region Implementation of IOptionHandler
 
+        /// <summary>
+        /// Initialize the appender based on the options set.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is part of the <see cref="IOptionHandler"/> delayed object
+        /// activation scheme. The <see cref="ActivateOptions"/> method must 
+        /// be called on this object after the configuration properties have
+        /// been set. Until <see cref="ActivateOptions"/> is called this
+        /// object is in an undefined state and must not be used. 
+        /// </para>
+        /// <para>
+        /// If any of the configuration properties are modified then 
+        /// <see cref="ActivateOptions"/> must be called again.
+        /// </para>
+        /// <para>
+        /// The appender will be ignored if no <see cref="RemoteHost" /> was specified or 
+        /// an invalid remote TCP port number was specified.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">The required property <see cref="RemoteHost" /> was not specified.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The TCP port number assigned to <see cref="RemotePort" /> is less than <see cref="IPEndPoint.MinPort" /> or greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public override void ActivateOptions()
 		{
 			base.ActivateOptions();
@@ -214,7 +312,7 @@ namespace log4net.Appender
         /// <param name="loggingEvent">The event to log.</param>
         /// <remarks>
         /// <para>
-        /// Sends the event using an UDP datagram.
+        /// Sends the event to a Scribe server.
         /// </para>
         /// <para>
         /// Exceptions are passed to the <see cref="AppenderSkeleton.ErrorHandler"/>.
@@ -247,6 +345,18 @@ namespace log4net.Appender
             }
         }
 
+        /// <summary>
+        /// This method is called by the <see cref="AppenderSkeleton.DoAppend(LoggingEvent[])"/> method.
+        /// </summary>
+        /// <param name="loggingEvent">The event to log.</param>
+        /// <remarks>
+        /// <para>
+        /// Sends the event to a Scribe server.
+        /// </para>
+        /// <para>
+        /// Exceptions are passed to the <see cref="AppenderSkeleton.ErrorHandler"/>.
+        /// </para>
+        /// </remarks>
         protected override void Append(LoggingEvent[] loggingEvents)
         {
             try
@@ -292,13 +402,13 @@ namespace log4net.Appender
         }
 
         /// <summary>
-        /// Closes the UDP connection and releases all resources associated with 
-        /// this <see cref="UdpAppender" /> instance.
+        /// Closes the Scribe connection and releases all resources associated with 
+        /// this <see cref="ScribeAppender" /> instance.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Disables the underlying <see cref="UdpClient" /> and releases all managed 
-        /// and unmanaged resources associated with the <see cref="UdpAppender" />.
+        /// Disables the underlying <see cref="scribe.Client" /> and releases all managed 
+        /// and unmanaged resources associated with the <see cref="ScribeAppender" />.
         /// </para>
         /// </remarks>
         override protected void OnClose()
@@ -320,11 +430,11 @@ namespace log4net.Appender
         #region Protected Instance Methods
 
         /// <summary>
-        /// Initializes the underlying  <see cref="UdpClient" /> connection.
+        /// Initializes the underlying  <see cref="scribe.Client" /> connection.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The underlying <see cref="UdpClient"/> is initialized and binds to the 
+        /// The underlying <see cref="scribe.Client"/> is initialized and binds to the 
         /// port number from which you intend to communicate.
         /// </para>
         /// <para>

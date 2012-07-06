@@ -1,0 +1,47 @@
+The latest version of this appender is located at https://github.com/yoneal/log4net-4-scribe.
+
+Introduction
+============
+
+Scribe is a server for aggregating log data that's streamed in real
+time from clients. It is designed to be scalable and reliable. For more information regarding Scribe, please see https://github.com/facebook/scribe.
+
+Apache log4net is a sub project of the Apache Logging Services project. 
+Apache log4net graduated from the Apache Incubator in February 2007.
+Web site: http://logging.apache.org/log4net
+
+Scribe Appender 
+
+Example
+=======
+
+For an example usage of this appender, please see the example folder.
+
+License (See LICENSE file for full license)
+===========================================
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Notes
+=====
+
+The Thrift dll and Scribe files were generated on a Ubuntu 12.04 LTS machine. Steps for building the said files will be added to the wiki.
+
+Tested and built using Visual Studio 2010.
+
+ToDo
+====
+
+* Add unit tests
+* Document steps for Thrift and Scribe build
+ 
